@@ -2,6 +2,8 @@
 
 require 'wp-load.php';
 
+require 'wp-admin/includes/plugin.php';
+
 $report_title = get_bloginfo() . ' Report';
 
 $base_prefix = $wpdb->base_prefix;
@@ -24,11 +26,15 @@ function site_report() { ?>
 	<?php endforeach; ?>
 </ul>
 
-<h3>Plugins</h3>
+<h3>Active Plugins <small><a href='#show-details'>Show Details</a></small></h3>
 <?php $plugins = get_option('active_plugins'); if( count( $plugins ) ): ?>
 <ul>
-	<?php foreach($plugins as $plugin): //$plugin_data = get_plugin_data( $plugin ); ?>
-	<li><?php echo $plugin; ?></li>
+	<?php foreach($plugins as $plugin):
+	$plugin_data = (object)get_plugin_data( plugin_dir_path( __FILE__ ) . 'wp-content/plugins/' . $plugin ); ?>
+	<li><?php //echo '<pre>' . print_r( $plugin_data, 1 ) . '</pre>'; ?>
+		<h4><?php echo $plugin_data->Name; ?></h4>
+		<div class="hide"><?php echo "<p>$plugin</p>"; ?></div>
+		</li>
 	<?php endforeach; ?>
 </ul>
 <?php else: ?>
@@ -43,86 +49,10 @@ function site_report() { ?>
 <head>
 <meta charset="UTF-8">
 <title><?php echo $report_title; ?></title>
-<style>
-/* Apply a natural box layout model to all elements: http://paulirish.com/2012/box-sizing-border-box-ftw/ */
-* {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-}
-.chromeframe {
-	position: absolute;
-	top: 0;
-}
-/* Ok, this is where the fun starts.
--------------------------------------------------------------------------------*/
-
-/* A Linux- and Windows-friendly sans-serif font stack: http://prospects.mhurrell.co.uk/post/updating-the-helvetica-font-stack */
-body {
-	padding: 15px 100px;
-	font: 13px Helmet, Freesans, sans-serif;
-}
-/* Using local fonts? Check out Font Squirrel's webfont generator: http://www.fontsquirrel.com/tools/webfont-generator */
-
-/* We like off-black for text. */
-body, select, input, textarea {
-	color: #333;
-}
-a {
-	color: #03f;
-}
-a:hover {
-	color: #69f;
-}
-
-/* Custom text-selection colors (remove any text shadows: http://twitter.com/miketaylr/status/12228805301) */
-::-moz-selection {
-background: #fcd700;
-color: #fff;
-text-shadow: none;
-}
-::selection {
-	background: #fcd700;
-	color: #fff;
-	text-shadow: none;
-}
-/*	j.mp/webkit-tap-highlight-color */
-a:link {
-	-webkit-tap-highlight-color: #fcd700;
-}
-ins {
-	background-color: #fcd700;
-	color: #000;
-	text-decoration: none;
-}
-mark {
-	background-color: #fcd700;
-	color: #000;
-	font-style: italic;
-	font-weight: bold;
-}
-
-/* Mozilla dosen't style place holders by default */
-input:-moz-placeholder {
-color:#a9a9a9;
-}
-textarea:-moz-placeholder {
-color:#a9a9a9;
-}
-
-/* Print styles!
--------------------------------------------------------------------------------*/
-@media print {
-}
-
-/* Media queries!
--------------------------------------------------------------------------------*/
-
-@media screen and (max-width: 480px) {
-}
-</style>
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
 </head>
 <body>
+<div class='container'>
 <h1><?php echo $report_title; ?></h1>
 <?php $sites = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$base_prefix}blogs ORDER BY blog_id" ) ); ?>
 <?php if( !count( $sites )): ?>
@@ -137,5 +67,8 @@ switch_to_blog( $site->blog_id ); //$site_details = get_blog_details( $site->blo
 <?php site_report(); ?>
 <?php endforeach; ?>
 <?php endif; ?>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>$(function(){ $('a[href="#show-details"]').click(function(){ $('.hide', $(this).hide().closest('h3').next() ).show(); }) })</script>
 </body>
 </html>
