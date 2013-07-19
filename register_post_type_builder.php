@@ -1,8 +1,9 @@
 <?php
 
 function register_post_type_builder( $singular_title, $plural_title, $args_overrides = array(), $prefix = "" ) {
-	
-	register_post_type( $prefix . str_replace( '-', '_', sanitize_key( $singular_title )), array_merge( array(
+	add_action( 'init', function()  use( &$singular_title, &$plural_title, &$args_overrides, &$prefix) {
+		echo "<!-- prefix: " . $prefix . " -->";
+		register_post_type( $prefix . str_replace( '-', '_', sanitize_key( $singular_title )), array_merge( array(
 		'labels' => array(
 			'name' => $plural_title,
 			'singular_name' => $singular_title,
@@ -31,6 +32,7 @@ function register_post_type_builder( $singular_title, $plural_title, $args_overr
 		'menu_position' => null,
 		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' )
 	), (array) $args_overrides));
+	});
 }
 
 ?>
